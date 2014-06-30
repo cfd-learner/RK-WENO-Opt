@@ -1,10 +1,10 @@
 clear all;
 clf;
 
-fprintf('Make sure you have run cvx_setup!\n');
-path(path,'/home/ghosh/Work/Codes/RK-opt/polyopt');
-path(path,'/home/ghosh/Work/Codes/RK-opt/RKtools');
-path(path,'/home/ghosh/Work/Codes/RK-opt/RK-coeff-opt');
+fprintf('Make sure you have run cvx_setup and set the path correctly!\n');
+%path(path,'/home/ghosh/Work/Codes/RK-opt/polyopt');
+%path(path,'/home/ghosh/Work/Codes/RK-opt/RKtools');
+%path(path,'/home/ghosh/Work/Codes/RK-opt/RK-coeff-opt');
 
 filename=input('Enter eigenvalues filename: ','s');
 x = load(filename);
