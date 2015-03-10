@@ -12,15 +12,13 @@ smin = input('Enter minimum number of stages: ');
 smax = input('Enter maximum number of stages: ');
 crit = input('Optimize for accuracy (acc) or SSP coeff (ssp): ','s');
 
-style1=['k: ','b: ','r: ','k-.','b-.','r-.','k- ','b- ','r- ', ...
-        'k--','b--','r--'];
-style2=['ko ','bo ','ro ','ks ','bs ','rs ','k^ ','b^ ','r^ ', ...
-        'kv ','bv ','rv '];
+style1='-r';
+style2='b.';
 ns1=3;
 ns2=ns1-1;
 
 max_name_size=16;
-legend_str=char(zeros(2*(smax-smin+1),max_name_size));
+legend_str=char(zeros(2,max_name_size));
 count=0;
 
 scrsz = get(0,'ScreenSize');
@@ -36,16 +34,24 @@ for s=smin:smax
     else
         count = count+1;
         figure(figID);
-        plot(real(h*z),imag(h*z),strtrim(style2(ns1*count-ns2:ns1*count)), ...
-            'MarkerSize',5);
+        plot(real(h*z),imag(h*z),style2,'MarkerSize',8);
         hold on;
         [xa,ya,R] = StabilityRegion(coeff,1);
-        contour(xa,ya,R,[1 1],strtrim(style1(ns1*count-ns2:ns1*count)));
-        hold on;
+        contour(xa,ya,R,[1 1],style1);
         string1=['hl   (',sprintf('%2d',s),' stages)'];
         string2=['R(z) (',sprintf('%2d',s),' stages)'];
-        legend_str(2*count-1,:)=string1;
-        legend_str(2*count,:)  =string2;
+        legend_str(1,:)=string1;
+        legend_str(2,:)=string2;
+        xlabel('Real','FontName','Times','FontSize',14);
+        ylabel('Imaginary','FontName','Times','FontSize',14);
+        set(gca,'FontName','Times','FontSize',10);
+        legend(legend_str(1:2*count,:),'Location','BestOutside');
+        grid on;
+        hold off;
+        % save this figure
+        figname = strcat('rk_opt_',sprintf('%1d',p),'_',sprintf('%02d',s));
+        saveas(figID,strcat(figname,'.fig'),'fig');
+        print(figID,'-depsc2',strcat(figname,'.eps'));
         
         % create a name for this method
         name = strcat('rk_opt_',sprintf('%1d',p),'_',sprintf('%02d',s));
@@ -70,20 +76,4 @@ for s=smin:smax
         fclose(fileID);
     end
 end
-
-figure(figID);
-xlabel('Real','FontName','Times','FontSize',14);
-ylabel('Imaginary','FontName','Times','FontSize',14);
-set(gca,'FontName','Times','FontSize',10);
-legend(legend_str(1:2*count,:),'Location','BestOutside');
-grid on;
-hold off;
-
-% save this figure
-figname = strcat('rk_opt_',sprintf('%1d',p),'_',sprintf('%02d',smin), ...
-    '_',sprintf('%02d',smax));
-print(figID,'-depsc2',strcat(figname,'.tmp.eps'));
-cmd=['eps2eps ',figname,'.tmp.eps',' ',figname,'.eps',' && rm *.tmp.eps'];
-system(cmd);
-saveas(figID,strcat(figname,'.fig'),'fig');
 
