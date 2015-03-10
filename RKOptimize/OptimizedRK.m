@@ -6,6 +6,7 @@ fprintf('Make sure you have run cvx_setup and set the path correctly!\n');
 filename=input('Enter eigenvalues filename: ','s');
 x = load(filename);
 z = x(:,1) + 1i*x(:,2);
+k = convhull(x(:,1),x(:,2));
 
 p    = input('Enter order of method : ');
 smin = input('Enter minimum number of stages: ');
@@ -19,12 +20,11 @@ ns2=ns1-1;
 
 max_name_size=16;
 legend_str=char(zeros(2,max_name_size));
-count=0;
 
 scrsz = get(0,'ScreenSize');
 figID = figure('Position',[1 scrsz(4)/2 scrsz(3)/2 scrsz(4)/2]);
 for s=smin:smax
-    [h,coeff]=opt_poly_bisect(z,s,p,'chebyshev','do_plot',false);
+    [h,coeff]=opt_poly_bisect(z(k),s,p,'chebyshev','do_plot',false);
     rk = rk_opt(s,p,'erk',crit,'poly_coeff_ind',((p+1):s), ...
         'poly_coeff_val',coeff((p+2):s+1),'display','iter');
     if (~isstruct(rk))
@@ -32,7 +32,6 @@ for s=smin:smax
             p,s);
         fprintf(' (%s optimized).\n',crit);
     else
-        count = count+1;
         figure(figID);
         plot(real(h*z),imag(h*z),style2,'MarkerSize',8);
         hold on;
@@ -45,7 +44,7 @@ for s=smin:smax
         xlabel('Real','FontName','Times','FontSize',14);
         ylabel('Imaginary','FontName','Times','FontSize',14);
         set(gca,'FontName','Times','FontSize',10);
-        legend(legend_str(1:2*count,:),'Location','BestOutside');
+        legend(legend_str(1:2,:),'Location','BestOutside');
         grid on;
         hold off;
         % save this figure
