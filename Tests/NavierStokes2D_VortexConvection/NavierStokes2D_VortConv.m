@@ -47,7 +47,7 @@ N = [32 32];               % grid dimensions
 t_final = 20.0;
 
 % specify spatial discretization scheme details
-hyp_scheme      = 'crweno5';
+hyp_scheme      = 'weno5';
 hyp_int_type    = 'components';
 hyp_flux_split  = 'no';
 par_type        = 'nonconservative-2stage';
@@ -182,8 +182,7 @@ legend_ptr = char(zeros(size(orders,2),9));
 ref_levels = 1000;
 
 ti_path = [ti_path,'/',opt_type,'-optimized/'];
-%ti_path = [ti_path,sprintf('%1d',ndims),'D'];
-ti_path = [ti_path,sprintf('%1d',1),'D'];
+ti_path = [ti_path,sprintf('%1d',ndims),'D'];
 if (strcmp(hyp_scheme,'weno5'))
     ti_path = [ti_path,'_','NonCompact5'];
 elseif (strcmp(hyp_scheme,'crweno5'))
