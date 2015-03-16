@@ -182,7 +182,7 @@ legend_ptr = char(zeros(size(orders,2),9));
 ref_levels = 1000;
 
 ti_path = [ti_path,'/',opt_type,'-optimized/'];
-ti_path = [ti_path,sprintf('%1d',ndims),'D'];
+ti_path = [ti_path,sprintf('%1d',1),'D'];
 if (strcmp(hyp_scheme,'weno5'))
     ti_path = [ti_path,'_','NonCompact5'];
 elseif (strcmp(hyp_scheme,'crweno5'))
@@ -201,6 +201,23 @@ MaxCost = zeros(size(orders,2)*20,1);
 n_o = 1;
 for order = orders
     nstages = order:order+11;
+    %if (strcmp(hyp_scheme,'crweno5'))
+    %    if (order == 2)
+    %        nstages = [2,4];
+    %    elseif (order == 3)
+    %        nstages = [3,6];
+    %    elseif (order == 4)
+    %        nstages = [4,9];
+    %    end
+    %elseif (strcmp(hyp_scheme,'weno5'))
+    %    if (order == 2)
+    %        nstages = [2,5];
+    %    elseif (order == 3)
+    %        nstages = [3,6];
+    %    elseif (order == 4)
+    %        nstages = [4,9];
+    %    end
+    %end
     n_s = 0;
     TSStages = zeros(size(nstages,2),1);
     TSMaxDt = zeros(size(nstages,2),1);
@@ -378,6 +395,20 @@ for order = orders
         loglog(FCounts(1:r-1),L2Errors(1:r-1),style,'linewidth',linewidth, ...
                'MarkerSize',8);
         hold on;
+    
+        % write to file
+        data_fname = ['data_',strtrim(hyp_scheme),'_',opt_type,'_', ...
+                       sprintf('%1d',order),'_', ...
+                       sprintf('%02d',stages),'.txt'];
+        fprintf('Saving data to %s.\n',data_fname);
+        data_fid = fopen(data_fname,'w');
+        for ii = 1:r-1
+            fprintf(data_fid,'%1.16e %1.16e %1.16e\n', ...
+                    TimeStep(ii), ...
+                    L2Errors(ii), ...
+                    FCounts(ii));
+        end
+        fclose(data_fid);
     
         % set legend string
         name_str = [sprintf('%1d',order),'(',sprintf('%2d',stages),')'];

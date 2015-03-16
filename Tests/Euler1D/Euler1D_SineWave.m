@@ -40,14 +40,14 @@ ip_type = 'ascii';
 % set problem specific input parameters
 ndims = 1;
 nvars = 3;
-iproc = 1;
+iproc = 4;
 ghost = 3;
 
 % use TI methods optimized for SSP or accuracy?
 opt_type = 'SSP';
 
 % specify a nice, high-order spatial discretization scheme
-hyp_scheme = 'crweno5';
+hyp_scheme = 'weno5';
 
 % set final time
 t_final = 1.0;
@@ -93,11 +93,12 @@ legend_ptr = char(zeros(size(orders,2),9));
 % set maximum number of data points
 ref_levels = 1000;
 
-ti_path = [ti_path,'/',opt_type,'-optimized'];
+ti_path = [ti_path,'/',opt_type,'-optimized/'];
+ti_path = [ti_path,sprintf('%1d',ndims),'D'];
 if (strcmp(hyp_scheme,'weno5'))
-    ti_path = [ti_path,'/','NonCompact5'];
+    ti_path = [ti_path,'_','NonCompact5'];
 elseif (strcmp(hyp_scheme,'crweno5'))
-    ti_path = [ti_path,'/','Compact5'];
+    ti_path = [ti_path,'_','Compact5'];
 else
     fprintf('Incorrect hyp_scheme specified.\n');
     return;
@@ -111,7 +112,23 @@ MinCost = zeros(size(orders,2)*20,1);
 MaxCost = zeros(size(orders,2)*20,1);
 n_o = 1;
 for order = orders
-    nstages = order:min(order+11,14);
+    if (strcmp(hyp_scheme,'crweno5'))
+        if (order == 2)
+            nstages = [2,4];
+        elseif (order == 3)
+            nstages = [3,6];
+        elseif (order == 4)
+            nstages = [4,9];
+        end
+    elseif (strcmp(hyp_scheme,'weno5'))
+        if (order == 2)
+            nstages = [2,5];
+        elseif (order == 3)
+            nstages = [3,6];
+        elseif (order == 4)
+            nstages = [4,9];
+        end
+    end
     n_s = 0;
     TSStages = zeros(size(nstages,2),1);
     TSMaxDt = zeros(size(nstages,2),1);
@@ -268,6 +285,20 @@ for order = orders
         MinCost(count) = min(FCounts (1:r-1));
         MaxCost(count) = max(FCounts (1:r-1));
 
+        % write to file
+        data_fname = ['data_',strtrim(hyp_scheme),'_',opt_type,'_', ...
+                       sprintf('%1d',order),'_', ...
+                       sprintf('%02d',stages),'.txt'];
+        fprintf('Saving data to %s.\n',data_fname);
+        data_fid = fopen(data_fname,'w');
+        for ii = 1:r-1
+            fprintf(data_fid,'%1.16e %1.16e %1.16e\n', ...
+                    TimeStep(ii), ...
+                    L2Errors(ii), ...
+                    FCounts(ii));
+        end
+        fclose(data_fid);
+    
         if (flag_opt && n_s)
             style = [linestyle,colors(n_o),pointstyle(n_s)];
             linewidth = 1;
@@ -289,7 +320,7 @@ for order = orders
         % set legend string
         name_str = [sprintf('%1d',order),'(',sprintf('%2d',stages),')'];
         legend_str(count,:) = name_str;
-    
+
         count = count+1;
         n_s = n_s + 1;
     end
