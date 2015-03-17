@@ -112,23 +112,24 @@ MinCost = zeros(size(orders,2)*20,1);
 MaxCost = zeros(size(orders,2)*20,1);
 n_o = 1;
 for order = orders
-    if (strcmp(hyp_scheme,'crweno5'))
-        if (order == 2)
-            nstages = [2,4];
-        elseif (order == 3)
-            nstages = [3,6];
-        elseif (order == 4)
-            nstages = [4,9];
-        end
-    elseif (strcmp(hyp_scheme,'weno5'))
-        if (order == 2)
-            nstages = [2,5];
-        elseif (order == 3)
-            nstages = [3,6];
-        elseif (order == 4)
-            nstages = [4,9];
-        end
-    end
+    nstages = order:order+11;
+    %if (strcmp(hyp_scheme,'crweno5'))
+    %    if (order == 2)
+    %        nstages = [2,4];
+    %    elseif (order == 3)
+    %        nstages = [3,6];
+    %    elseif (order == 4)
+    %        nstages = [4,9];
+    %    end
+    %elseif (strcmp(hyp_scheme,'weno5'))
+    %    if (order == 2)
+    %        nstages = [2,5];
+    %    elseif (order == 3)
+    %        nstages = [3,6];
+    %    elseif (order == 4)
+    %        nstages = [4,9];
+    %    end
+    %end
     n_s = 0;
     TSStages = zeros(size(nstages,2),1);
     TSMaxDt = zeros(size(nstages,2),1);
