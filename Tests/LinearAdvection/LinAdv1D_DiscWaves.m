@@ -71,10 +71,6 @@ op_overwrite = 'yes';
 N = 200;
 
 % set the commands to run the executables
-nproc = 1;
-for i = 1:max(size(iproc))
-    nproc = nproc * iproc(i);
-end
 init_exec = './INIT > init.log 2>&1';
 clean_exec = 'rm -rf *.inp *.dat *.log';
 
@@ -102,12 +98,6 @@ else
     return;
 end
 count = 1;
-MinDt   = zeros(size(orders,2)*20,1);
-MaxDt   = zeros(size(orders,2)*20,1);
-MinErr  = zeros(size(orders,2)*20,1);
-MaxErr  = zeros(size(orders,2)*20,1);
-MinCost = zeros(size(orders,2)*20,1);
-MaxCost = zeros(size(orders,2)*20,1);
 n_o = 1;
 for order = orders
     nstages = order:min(order+11,14);
@@ -183,19 +173,36 @@ for order = orders
         end
         system(init_exec);
         system('ln -sf initial.inp exact.inp');
-        hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ', ...
-                      hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
+        hypar_exec = [hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
                       ' > run.log 2>&1' ...
                      ];
         system(hypar_exec);
         [err,wt] = ReadErrorDat(ndims);
         [~,fcounts,~,~,~,~,~,~] = ReadFunctionCounts();
+        % load the solution
+        solution = load('op.dat');
+        solution = solution(:,3);
+        % find max and min
+        MaxSoln = max(solution);
+        MinSoln = min(solution);
+        TVErr = max(abs(MaxSoln-1),abs(MinSoln));
+        % save the output file
+        op_fname = strcat('op_',strtrim(hyp_scheme),'_',opt_type,'_', ...
+                          sprintf('%1d',order),'_', ...
+                          sprintf('%02d',stages),'_', ...
+                          'dt',sprintf('%10.8f',dt),'.txt');
+        system(['mv op.dat ',op_fname]);
+        log_fname = strcat('log_',strtrim(hyp_scheme),'_',opt_type,'_', ...
+                           sprintf('%1d',order),'_', ...
+                           sprintf('%02d',stages),'_', ...
+                           'dt',sprintf('%10.8f',dt),'.txt');
+        system(['mv run.log ',log_fname]);
         system(clean_exec);
         if (~min(isfinite(err)))
             fprintf('failed.\n');
             continue;
         end
-        fprintf('passed. %1.6e\n',err(2));
+        fprintf('passed. %1.6e, %6.4f, %6.4f \n',err(2),MaxSoln,MinSoln);
         TimeStep(r)     = dt*adv*N;
         Errors(r,:)     = err;
         Walltimes(r,:)  = wt;
@@ -208,9 +215,6 @@ for order = orders
                 dt_factor = 0.5 * dt_factor;
                 dt_new = dt * (1.0+dt_factor);
             end
-
-            % estimate error from previous error based on theoretical order
-            err_theoretical = Errors(r-1,2) * (dt_new/dt);
 
             fprintf('\tdt=%1.6e, factor=%8.6f: ',dt_new,dt_factor);
             niter = floor(t_final/dt_new);
@@ -232,20 +236,37 @@ for order = orders
             end
             system(init_exec);
             system('ln -sf initial.inp exact.inp');
-            hypar_exec = ['$MPI_DIR/bin/mpiexec -n ',num2str(nproc),' ', ...
-                          hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
-                          ' > run.log 2>&1' ...
-                          ];
+            hypar_exec = [hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
+                          ' > run.log 2>&1'];
             system(hypar_exec);
             [err,wt] = ReadErrorDat(ndims);
             [~,fcounts,~,~,~,~,~,~] = ReadFunctionCounts();
+            % load the solution
+            solution = load('op.dat');
+            solution = solution(:,3);
+            % find max and min
+            MaxSoln = max(solution);
+            MinSoln = min(solution);
+            TVErr = max(abs(MaxSoln-1),abs(MinSoln));
+            % save the output file and log
+            op_fname = strcat('op_',strtrim(hyp_scheme),'_',opt_type,'_', ...
+                              sprintf('%1d',order),'_', ...
+                              sprintf('%02d',stages),'_', ...
+                              'dt',sprintf('%10.8f',dt_new),'.txt');
+            system(['mv op.dat ',op_fname]);
+            log_fname = strcat('log_',strtrim(hyp_scheme),'_',opt_type,'_', ...
+                              sprintf('%1d',order),'_', ...
+                              sprintf('%02d',stages),'_', ...
+                              'dt',sprintf('%10.8f',dt_new),'.txt');
+            system(['mv run.log ',log_fname]);
             system(clean_exec);
-            if ((~min(isfinite(err))) || (err(2)/err_theoretical > 2))
-                fprintf('failed. %1.6e\n',err(2));
+            ErrRatio = err(2)/Errors(r-1,2);
+            if ((~min(isfinite(err))) || (TVErr > 0.01) || (ErrRatio > 1.2))
+                fprintf('failed. %1.6e, %6.4f, %6.4f \n',err(2),MaxSoln,MinSoln);
                 dt_max = dt_new;
                 dt_factor = 0.5 * dt_factor;
             else
-                fprintf('passed. %1.6e\n',err(2));
+                fprintf('passed. %1.6e, %6.4f, %6.4f \n',err(2),MaxSoln,MinSoln);
                 dt = dt_new;
                 TimeStep(r) = dt*adv*N;
                 Errors(r,:) = err;
@@ -261,14 +282,6 @@ for order = orders
         TSStages(n_s+1) = stages;
         TSMaxDt(n_s+1) = max(TimeStep(1:r-1))/stages;
     
-        % To be used in setting axis limits
-        MinDt(count)   = min(TimeStep(1:r-1));
-        MaxDt(count)   = max(TimeStep(1:r-1));
-        MinErr(count)  = min(L2Errors(1:r-1));
-        MaxErr(count)  = max(L2Errors(1:r-1));
-        MinCost(count) = min(FCounts (1:r-1));
-        MaxCost(count) = max(FCounts (1:r-1));
-
         % write to file
         data_fname = ['data_',strtrim(hyp_scheme),'_',opt_type,'_', ...
                        sprintf('%1d',order),'_', ...
@@ -311,6 +324,16 @@ for order = orders
     
     TSMaxDt = TSMaxDt(1:n_s);
     TSStages = TSStages(1:n_s);
+    % write to file
+    data_fname = ['dtmax_',strtrim(hyp_scheme),'_',opt_type,'_', ...
+                   sprintf('%1d',order),'.txt'];
+    fprintf('Saving data to %s.\n',data_fname);
+    data_fid = fopen(data_fname,'w');
+    for ii = 1:n_s
+        fprintf(data_fid,'%1.16e %1.16e\n', ...
+                TSStages(ii),TSMaxDt(ii));
+    end
+    fclose(data_fid);
     % plot max dt as a function of number of stages
     style = ['-',colors(n_o),'o'];
     figure(figMaxDtStages);
@@ -330,14 +353,7 @@ for order = orders
     n_o = n_o + 1;
 end
 
-MinDt   = MinDt(1:count-1);
-MaxDt   = MaxDt(1:count-1);
-MinErr  = MinErr(1:count-1);
-MaxErr  = MaxErr(1:count-1);
-MinCost = MinCost(1:count-1);
-MaxCost = MaxCost(1:count-1);
 legend_str = legend_str(1:count-1,:);
-
 figname = [opt_type,'_',hyp_scheme,'_',sprintf('%1d',orders)];
 if (count > 1)
 
@@ -350,7 +366,7 @@ if (count > 1)
     ylabel('Error','FontName','Times','FontSize',14,'FontWeight','normal');
     set(gca,'FontSize',10,'FontName','Times');
     legend(legend_str,'Location','eastoutside');
-    axis([min(MinDt)/2 max(MaxDt)*2 min(MinErr)/2 min(2*max(MaxErr),maxerr)]);
+    axis auto;
     title(title_str);
     grid on;
     hold off;
@@ -362,7 +378,7 @@ if (count > 1)
            'FontSize',14,'FontWeight','normal');
     set(gca,'FontSize',10,'FontName','Times');
     legend(legend_str,'Location','eastoutside');
-    axis([min(MinCost)/2 2*max(MaxCost) min(MinErr)/2 min(2*max(MaxErr),maxerr)]);
+    axis auto;
     title(title_str);
     grid on;
     hold off;
@@ -372,14 +388,18 @@ if (count > 1)
     ylabel('Maximum stage CFL','FontName','Times','FontSize',14,'FontWeight','normal');
     set(gca,'FontSize',10,'FontName','Times');
     legend(legend_ptr,'Location','best');
+    axis auto;
     title(title_str);
     grid on;
     hold off;
 
     % print figures to file
     print(figErrDt,'-depsc2',['fig_',figname,'_ErrDt.eps']);
+    saveas(figErrDt,['fig_',figname,'_ErrDt.fig']);
     print(figErrCost,'-depsc2',['fig_',figname,'_ErrCost.eps']);
+    saveas(figErrCost,['fig_',figname,'_ErrCost.fig']);
     print(figMaxDtStages,'-depsc2',['fig_',figname,'_MaxDtStages.eps']);
+    saveas(figMaxDtStages,['fig_',figname,'_MaxDtStages.fig']);
 end
 
 % clean up
