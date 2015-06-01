@@ -46,6 +46,11 @@ i = 1;
 filename = strcat('pseudospectrum_',strtrim(method),'.dat');
 fid = fopen(filename,'w');
 while true
+
+    if (i > max)
+        break;
+    end
+
     Level = Contour(1,i);
     N = Contour(2,i);
     xcoord = zeros(N,1);
@@ -56,9 +61,6 @@ while true
         fprintf(fid,'%+1.16e %+1.16e %+1.16e\n',xcoord(j),ycoord(j),Level);
     end
     i = i+N+1;
-    if (i > max)
-        break;
-    end
 end
 fclose(fid);
 
