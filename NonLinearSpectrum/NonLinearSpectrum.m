@@ -18,6 +18,11 @@ for i=1:size(data,1)
     eigenvalue(9*i+9) = (data(i,3)-ax) + 1i*(data(i,2)-ay);
     
 end
+for i=1:size(eigenvalue,1)
+    if (real(eigenvalue(i)) > 0)
+        eigenvalue(i) = 0 + 1i*imag(eigenvalue(i));
+    end
+end
 figure(1);
 plot(eigenvalue,'ko');
 grid on;
@@ -44,6 +49,11 @@ for i=1:size(data,1)
     eigenvalue(9*i+8) = (data(i,3)-ax) + 1i*(data(i,2)+ay);
     eigenvalue(9*i+9) = (data(i,3)-ax) + 1i*(data(i,2)-ay);
     
+end
+for i=1:size(eigenvalue,1)
+    if (real(eigenvalue(i)) > 0)
+        eigenvalue(i) = 0 + 1i*imag(eigenvalue(i));
+    end
 end
 figure(2);
 plot(eigenvalue,'ko');
@@ -72,6 +82,11 @@ for i=1:size(data,1)
     eigenvalue(9*i+9) = (data(i,3)-ax) + 1i*(data(i,2)-ay);
     
 end
+for i=1:size(eigenvalue,1)
+    if (real(eigenvalue(i)) > 0)
+        eigenvalue(i) = 0 + 1i*imag(eigenvalue(i));
+    end
+end
 figure(3);
 plot(eigenvalue,'ko');
 grid on;
@@ -98,6 +113,11 @@ for i=1:size(data,1)
     eigenvalue(9*i+8) = (data(i,3)-ax) + 1i*(data(i,2)+ay);
     eigenvalue(9*i+9) = (data(i,3)-ax) + 1i*(data(i,2)-ay);
     
+end
+for i=1:size(eigenvalue,1)
+    if (real(eigenvalue(i)) > 0)
+        eigenvalue(i) = 0 + 1i*imag(eigenvalue(i));
+    end
 end
 figure(4);
 plot(eigenvalue,'ko');
