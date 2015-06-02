@@ -1,0 +1,107 @@
+HyPar - Parallel (MPI) version with 1 processes
+Compiled with PETSc time integration.
+Reading solver inputs from file "solver.inp".
+	No. of dimensions                          : 1
+	No. of variables                           : 3
+	Domain size                                : 201 
+	Processes along each dimension             : 1 
+	No. of ghosts pts                          : 3
+	No. of iter.                               : 36
+	Restart iteration                          : 0
+	Time integration scheme                    : PETSc 
+	Spatial discretization scheme (hyperbolic) : weno5
+	Split hyperbolic flux term?                : no
+	Interpolation type for hyperbolic term     : characteristic
+	Spatial discretization type   (parabolic ) : nonconservative-1.5stage
+	Spatial discretization scheme (parabolic ) : 4
+	Time Step                                  : 4.894043E-02
+	Check for conservation                     : yes
+	Screen output iterations                   : 1
+	File output iterations                     : 99999999
+	Initial solution file type                 : ascii
+	Initial solution read mode                 : serial
+	Solution file write mode                   : serial
+	Solution file format                       : text
+	Overwrite solution file                    : yes
+	Physical model                             : euler1d
+Partitioning domain.
+Allocating data arrays.
+Reading grid and initial conditions from ASCII file "initial.inp" (Serial mode).
+Volume integral of the initial solution:
+   0:	1.2878713250000002E+01
+   1:	1.0141851000000001E+01
+   2:	6.1791666999999997E+01
+Reading boundary conditions from "boundary.inp".
+  Boundary                    extrapolate:  Along dimension  0 and face +1
+  Boundary                    extrapolate:  Along dimension  0 and face -1
+2 boundary condition(s) read.
+Initializing solvers.
+Reading WENO parameters from weno.inp.
+Initializing physics. Model = "euler1d"
+Reading physical model inputs from file "physics.inp".
+
+Registered custom RK scheme "rk_opt_3_07" with the following Butcher tableaux:-
+           | +0.00000 : +0.00000 : +0.00000 : +0.00000 : +0.00000 : +0.00000 : +0.00000 :
+           | +0.34060 : +0.00000 : +0.00000 : +0.00000 : +0.00000 : +0.00000 : +0.00000 :
+           | +0.23070 : +0.21907 : +0.00000 : +0.00000 : +0.00000 : +0.00000 : +0.00000 :
+           | +0.23069 : +0.21826 : +0.33121 : +0.00000 : +0.00000 : +0.00000 : +0.00000 :
+           | +0.14769 : +0.13144 : +0.19561 : +0.18495 : +0.00000 : +0.00000 : +0.00000 :
+           | +0.16670 : +0.15530 : +0.13000 : +0.12353 : +0.21356 : +0.00000 : +0.00000 :
+           | +0.18290 : +0.15773 : +0.08918 : +0.08421 : +0.10589 : +0.13959 : +0.00000 :
+  ---------|-----------------------------------------------------------------------------
+           | +0.19077 : +0.14879 : +0.13397 : +0.11279 : +0.15535 : +0.08075 : +0.17758 :
+
+Setting up PETSc time integration... 
+** Starting PETSc time integration **
+Writing solution file op.dat.
+Iteration:      1  Time: 4.894E-02  Max CFL: 4.687E+00  Max Diff. No.: -1.000E+00  Conservation loss: 6.6276E+00
+Iteration:      2  Time: 9.788E-02  Max CFL: 4.830E+00  Max Diff. No.: -1.000E+00  Conservation loss: 1.3255E+01
+Iteration:      3  Time: 1.468E-01  Max CFL: 4.795E+00  Max Diff. No.: -1.000E+00  Conservation loss: 1.9883E+01
+Iteration:      4  Time: 1.958E-01  Max CFL: 4.668E+00  Max Diff. No.: -1.000E+00  Conservation loss: 2.6510E+01
+Iteration:      5  Time: 2.447E-01  Max CFL: 4.653E+00  Max Diff. No.: -1.000E+00  Conservation loss: 3.3138E+01
+Iteration:      6  Time: 2.936E-01  Max CFL: 5.003E+00  Max Diff. No.: -1.000E+00  Conservation loss: 3.9765E+01
+Iteration:      7  Time: 3.426E-01  Max CFL: 4.604E+00  Max Diff. No.: -1.000E+00  Conservation loss: 4.6393E+01
+Iteration:      8  Time: 3.915E-01  Max CFL: 4.816E+00  Max Diff. No.: -1.000E+00  Conservation loss: 5.3020E+01
+Iteration:      9  Time: 4.405E-01  Max CFL: 4.717E+00  Max Diff. No.: -1.000E+00  Conservation loss: 5.9648E+01
+Iteration:     10  Time: 4.894E-01  Max CFL: 4.681E+00  Max Diff. No.: -1.000E+00  Conservation loss: 6.6276E+01
+Iteration:     11  Time: 5.383E-01  Max CFL: 4.625E+00  Max Diff. No.: -1.000E+00  Conservation loss: 7.2903E+01
+Iteration:     12  Time: 5.873E-01  Max CFL: 4.622E+00  Max Diff. No.: -1.000E+00  Conservation loss: 7.9531E+01
+Iteration:     13  Time: 6.362E-01  Max CFL: 4.608E+00  Max Diff. No.: -1.000E+00  Conservation loss: 8.6158E+01
+Iteration:     14  Time: 6.852E-01  Max CFL: 4.608E+00  Max Diff. No.: -1.000E+00  Conservation loss: 9.2786E+01
+Iteration:     15  Time: 7.341E-01  Max CFL: 4.670E+00  Max Diff. No.: -1.000E+00  Conservation loss: 9.9414E+01
+Iteration:     16  Time: 7.830E-01  Max CFL: 4.683E+00  Max Diff. No.: -1.000E+00  Conservation loss: 1.0604E+02
+Iteration:     17  Time: 8.320E-01  Max CFL: 4.646E+00  Max Diff. No.: -1.000E+00  Conservation loss: 1.1267E+02
+Iteration:     18  Time: 8.809E-01  Max CFL: 4.596E+00  Max Diff. No.: -1.000E+00  Conservation loss: 1.1930E+02
+Iteration:     19  Time: 9.299E-01  Max CFL: 4.688E+00  Max Diff. No.: -1.000E+00  Conservation loss: 1.2592E+02
+Iteration:     20  Time: 9.788E-01  Max CFL: 5.038E+00  Max Diff. No.: -1.000E+00  Conservation loss: 1.3255E+02
+Iteration:     21  Time: 1.028E+00  Max CFL: 4.599E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     22  Time: 1.077E+00  Max CFL: 4.636E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     23  Time: 1.126E+00  Max CFL: 4.696E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     24  Time: 1.175E+00  Max CFL: 1.295E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     25  Time: 1.224E+00  Max CFL: 1.295E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     26  Time: 1.272E+00  Max CFL: 1.295E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     27  Time: 1.321E+00  Max CFL: 1.295E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     28  Time: 1.370E+00  Max CFL: 1.260E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     29  Time: 1.419E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     30  Time: 1.468E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     31  Time: 1.517E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     32  Time: 1.566E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     33  Time: 1.615E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     34  Time: 1.664E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     35  Time: 1.713E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+Iteration:     36  Time: 1.762E+00  Max CFL: 0.000E+00  Max Diff. No.: -1.000E+00  Conservation loss: -NAN
+** Completed PETSc time integration **
+Writing solution file op.dat.
+Reading exact solution from ASCII file "exact.inp" (Serial mode).
+Computed errors:
+  L1         Error           : NAN
+  L2         Error           : -NAN
+  Linfinity  Error           : 0.0000000000000000E+00
+Conservation Errors:
+	-NAN
+	-NAN
+	-NAN
+Solver runtime (in seconds): 2.5599699999999997E-01
+Total  runtime (in seconds): 2.5999699999999998E-01
+Deallocating arrays.
+Finished.
