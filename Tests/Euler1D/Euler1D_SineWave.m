@@ -103,6 +103,7 @@ else
     fprintf('Incorrect hyp_scheme specified.\n');
     return;
 end
+ti_path = [ti_path,'_Linear'];
 count = 1;
 n_o = 1;
 for order = orders

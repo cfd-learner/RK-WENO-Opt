@@ -191,6 +191,7 @@ else
     fprintf('Incorrect hyp_scheme specified.\n');
     return;
 end
+ti_path = [ti_path,'_Linear'];
 count = 1;
 MinDt   = zeros(size(orders,2)*20,1);
 MaxDt   = zeros(size(orders,2)*20,1);
