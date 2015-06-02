@@ -160,7 +160,7 @@ for order = orders
         FCounts   = zeros(ref_levels,1);
 
         % run simulation with initial dt
-        fprintf('\tdt=%1.6e, factor=%8.6f: ',dt,dt_factor);
+        fprintf('\tdt=%1.6e, dt/s=%1.6e, factor=%8.6f: ',dt,dt/stages,dt_factor);
         niter = floor(t_final/dt);
                 petscdt = [' -ts_dt ',num2str(dt,'%1.16e'),' '];
         petscft = [' -ts_final_time ',num2str(t_final,'%f'),' '];
@@ -217,7 +217,7 @@ for order = orders
             % estimate error from previous error based on theoretical order
             err_theoretical = Errors(r-1,2) * (dt_new/dt)^order;
 
-            fprintf('\tdt=%1.6e, factor=%8.6f: ',dt_new,dt_factor);
+            fprintf('\tdt=%1.6e, dt/s=%1.6e, factor=%8.6f: ',dt,dt_new/stages,dt_factor);
             niter = floor(t_final/dt_new);
             petscdt = [' -ts_dt ',num2str(dt_new,'%1.16e'),' '];
             petscft = [' -ts_final_time ',num2str((niter*dt_new),'%f'),' '];
