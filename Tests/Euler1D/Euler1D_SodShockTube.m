@@ -24,7 +24,7 @@ system(cmd);
 hypar = [hypar_path,'/bin/HyPar'];
 
 file_extn = '.inp';
-orders = 3; %[2,3,4];
+orders = [2,3,4];
 
 % Get the default
 [~,~,~,~,~,~,~,~,~, ...
@@ -94,17 +94,17 @@ legend_ptr = char(zeros(size(orders,2),9));
 % set maximum number of data points
 ref_levels = 1000;
 
-%ti_path = [ti_path,'/',opt_type,'-optimized/'];
-%ti_path = [ti_path,sprintf('%1d',ndims),'D'];
-%if (strcmp(hyp_scheme,'weno5'))
-%    ti_path = [ti_path,'_','NonCompact5'];
-%elseif (strcmp(hyp_scheme,'crweno5'))
-%    ti_path = [ti_path,'_','Compact5'];
-%else
-%    fprintf('Incorrect hyp_scheme specified.\n');
-%    return;
-%end
-ti_path = [ti_path,'/RKOptimize'];
+ti_path = [ti_path,'/',opt_type,'-optimized/'];
+ti_path = [ti_path,sprintf('%1d',ndims),'D'];
+if (strcmp(hyp_scheme,'weno5'))
+    ti_path = [ti_path,'_','NonCompact5'];
+elseif (strcmp(hyp_scheme,'crweno5'))
+    ti_path = [ti_path,'_','Compact5'];
+else
+    fprintf('Incorrect hyp_scheme specified.\n');
+    return;
+end
+ti_path = [ti_path,'_NonLinear_2S'];
 count = 1;
 n_o = 1;
 for order = orders
