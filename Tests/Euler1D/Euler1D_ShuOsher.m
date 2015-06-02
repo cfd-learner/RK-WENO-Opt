@@ -2,7 +2,7 @@ clear all;
 close all;
 
 SystemName = '1D Euler';
-CaseName = 'Density Fluctuations';
+CaseName = 'Shu-Osher Problem';
 
 % Ask for path to HyPar source directory
 hypar_path = input('Enter path to HyPar source: ','s');
@@ -16,9 +16,9 @@ tolerance = input('Enter step size tolerance: ');
 path(path,strcat(hypar_path,'/Examples/Matlab/'));
 
 % Compile the code to generate the initial solution
-cmd = ['gcc ',hypar_path, ...
-       '/Examples/1D/Euler1D/DensitySumOfSineWaves/aux/exact.c -lm ', ...
-       '-o EXACT'];
+cmd = ['g++ ',hypar_path, ...
+       '/Examples/1D/Euler1D/ShuOsherProblem/aux/init.C ', ...
+       '-o INIT'];
 system(cmd);
 % find the HyPar binary
 hypar = [hypar_path,'/bin/HyPar'];
@@ -28,9 +28,9 @@ orders = [2,3,4];
 
 % Get the default
 [~,~,~,~,~,~,~,~,~, ...
-    hyp_flux_split,hyp_int_type,par_type,par_scheme,~,cons_check, ...
+    hyp_flux_split,~,par_type,par_scheme,~,cons_check, ...
     screen_op_iter,file_op_iter,~,~,input_mode, ...
-    output_mode,n_io,op_overwrite,~,nb,bctype,dim,face,limits, ...
+    output_mode,n_io,op_overwrite,~,~,~,~,~,~, ...
     mapped,borges,yc,nl,eps,p,rc,xi,wtol,lutype,norm,maxiter,atol,rtol, ...
     verbose] = SetDefaults();
 
@@ -48,18 +48,23 @@ opt_type = 'SSP';
 
 % specify a nice, high-order spatial discretization scheme
 hyp_scheme = 'weno5';
+hyp_int_type = 'characteristic';
 
 % set final time
-t_final = 1.0;
-
-% maximum expected error
-maxerr = 1.0;
+t_final = 1.8;
 
 % set physical model and related parameters
 model = 'euler1d';
 gamma = 1.4;
 grav  = 0.0;
 upw   = 'roe';
+
+% set boundaries
+nb = 2;
+bctype = ['extrapolate'; 'extrapolate'];
+bcdim = [0; 0];
+face = [1; -1];
+limits = [0 0; 0 0];
 
 % plotting styles
 colors = ['k','b','r'];
@@ -70,18 +75,10 @@ linestyle = '--';
 op_format = 'text';
 
 % set grid size;
-N = 512;
-
-fid = fopen('max_wavenumber','w');
-fprintf(fid,'%d\n',N/2);
-fclose(fid);
+N = 201;
 
 % set the commands to run the executables
-nproc = 1;
-for i = 1:max(size(iproc))
-    nproc = nproc * iproc(i);
-end
-exact_exec = './EXACT < max_wavenumber > exact.log 2>&1';
+init_exec = './INIT > init.log 2>&1';
 clean_exec = 'rm -rf *.inp *.dat *.log';
 
 % open figure window
@@ -107,7 +104,7 @@ else
     fprintf('Incorrect hyp_scheme specified.\n');
     return;
 end
-ti_path = [ti_path,'_Linear'];
+ti_path = [ti_path,'_NonLinear_1S'];
 count = 1;
 n_o = 1;
 for order = orders
@@ -174,7 +171,7 @@ for order = orders
                 par_type,par_scheme, dt,cons_check,screen_op_iter, ...
                 file_op_iter,op_format,ip_type,input_mode,output_mode, ...
                 n_io,op_overwrite,model);
-        WriteBoundaryInp(nb,bctype,dim,face,limits);
+        WriteBoundaryInp(nb,bctype,bcdim,face,limits);
         WritePhysicsInp_Euler1D(gamma,grav,upw);
         WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
         WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
@@ -182,7 +179,8 @@ for order = orders
             % create a sym link to the file containing the TI method
             system(['ln -sf ',filename,' time_method.inp']);
         end
-        system(exact_exec);
+        system(init_exec);
+        system('ln -sf initial.inp exact.inp');
         hypar_exec = [hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
                       ' > run.log 2>&1'];
         system(hypar_exec);
@@ -218,9 +216,6 @@ for order = orders
                 dt_new = dt * (1.0+dt_factor);
             end
 
-            % estimate error from previous error based on theoretical order
-            err_theoretical = Errors(r-1,2) * (dt_new/dt)^order;
-
             fprintf('\tdt=%1.6e, dt/s=%1.6e, factor=%8.6f: ',dt_new,dt_new/stages, ...
                     dt_factor);
             niter = floor(t_final/dt_new);
@@ -232,7 +227,7 @@ for order = orders
                 par_type,par_scheme, dt_new,cons_check,screen_op_iter, ...
                 file_op_iter,op_format,ip_type,input_mode,output_mode, ...
                 n_io,op_overwrite,model);
-            WriteBoundaryInp(nb,bctype,dim,face,limits);
+            WriteBoundaryInp(nb,bctype,bcdim,face,limits);
             WritePhysicsInp_Euler1D(gamma,grav,upw);
             WriteWenoInp(mapped,borges,yc,nl,eps,p,rc,xi,wtol);
             WriteLusolverInp(lutype,norm,maxiter,atol,rtol,verbose);
@@ -240,7 +235,8 @@ for order = orders
                 % create a sym link to the file containing the TI method
                 system(['ln -sf ',filename,' time_method.inp']);
             end
-            system(exact_exec);
+            system(init_exec);
+            system('ln -sf initial.inp exact.inp');
             hypar_exec = [hypar,' ',petsc_flags,petscdt,petscft,petscms, ...
                           ' > run.log 2>&1'];
             system(hypar_exec);
@@ -258,7 +254,7 @@ for order = orders
                               'dt',sprintf('%10.8f',dt_new),'.txt');
             system(['mv run.log ',log_fname]);
             system(clean_exec);
-            if ((~min(isfinite(err))) || (err(2)/err_theoretical > 2))
+            if (~min(isfinite(err)))
                 fprintf('failed. %1.16e.\n',err(2));
                 dt_max = dt_new;
                 dt_factor = 0.5 * dt_factor;
@@ -278,7 +274,6 @@ for order = orders
         
         TSStages(n_s+1) = stages;
         TSMaxDt(n_s+1) = max(TimeStep(1:r-1))/stages;
-    
         % write to file
         data_fname = ['data_',strtrim(hyp_scheme),'_',opt_type,'_', ...
                        sprintf('%1d',order),'_', ...
@@ -399,4 +394,4 @@ if (count > 1)
 end
 
 % clean up
-system('rm -rf EXACT max_wavenumber');
+system('rm -rf INIT');
