@@ -219,7 +219,7 @@ for order = orders
             end
 
             % estimate error from previous error based on theoretical order
-            err_theoretical = Errors(r-1,2) * (dt_new/dt)^order;
+            err_theoretical = Errors(1,2);% * (dt_new/dt)^order;
 
             fprintf('\tdt=%1.6e, dt/s=%1.6e, factor=%8.6f: ',dt_new,dt_new/stages, ...
                     dt_factor);
@@ -258,7 +258,7 @@ for order = orders
                               'dt',sprintf('%10.8f',dt_new),'.txt');
             system(['mv run.log ',log_fname]);
             system(clean_exec);
-            if ((~min(isfinite(err))) || (err(2)/err_theoretical > 2))
+            if ((~min(isfinite(err))) || (err(2)/err_theoretical > 1.1))
                 fprintf('failed. %1.16e.\n',err(2));
                 dt_max = dt_new;
                 dt_factor = 0.5 * dt_factor;
